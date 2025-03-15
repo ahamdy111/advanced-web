@@ -1,41 +1,65 @@
+// name AHmed hamdy
+// id : 230103760
+
 <?php
-//exercise1
-$x = 10;
-$y = 7;
-echo "$x + $y = " . ($x + $y) . "<br>";
-echo "$x - $y = " . ($x - $y) . "<br>";
-echo "$x * $y = " . ($x * $y) . "<br>";
-echo "$x / $y = " . ($x / $y) . "<br>";
-echo "$x % $y = " . ($x % $y) . "<br>";
+#1
+// $attr = "mysql:host=localhost;dbname=testdb;charset=utf8mb4";
+// $username = "root";
+// $password = "pass";
 
-//exercise2
-// $month = date('F', time());
-// if ($month == "August") {
-//     echo "It's August, so it's really hot.";
-// } else {
-//     echo "Not August, so at least not in the peak of the heat.";
-// }
+// try {
+//     $pdo = new PDO($attr, $username, $password, [
+//         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+//         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+//     ]);
 
-//exercise3
-// for ($i = 1; $i <= 12; $i++) {
-//     echo "$i * $i = " . ($i * $i) . "<br>";
-// }
+//     $stmt = $pdo->query("SELECT id, name, email FROM users");
 
-//exercise4
-// echo "<table border='1' cellspacing='0' cellpadding='10'>";
+//     //for one row
+//     $row = $stmt->fetch();
+//     echo "your name:" . $row['name'] . "<br>";
 
-// for ($i = 1; $i <= 7; $i++) {
-//     echo "<tr>";
-//     for ($j = 1; $j <= 7; $j++) {
-//         echo "<td>" . ($i * $j) . "</td>";
+//     // for all rows
+//     $allRows = $stmt->fetchAll();
+//     foreach ($allRows as $row) {
+//         echo $row['name'] . " - " . $row['email'] . "<br>";
 //     }
-//     echo "</tr>";
+
+//     // for first data of first row
+//     $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+//     $userCount = $stmt->fetchColumn();
+//     echo "users count" . $userCount;
+
+// } catch (PDOException $e) {
+//     die("Connection failed" . $e->getMessage());
 // }
 
-// echo "</table>";
+
+#2
+$dsn = "mysql:host=localhost;dbname=testdb;charset=utf8mb4";
+$username = "root";
+$password = "pass";
+$pdo = new PDO($dsn, $username, $password, [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+]);
+
+// number of row of page
+$rowsPerPage = 20;
 
 
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
 
+$offset = ($page - 1) * $rowsPerPage;
 
+$stmt = $pdo->prepare("SELECT id, name, email FROM users LIMIT :limit OFFSET :offset");
+$stmt->bindValue(':limit', $rowsPerPage, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
+$users = $stmt->fetchAll();
+
+$totalRows = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+$totalPages = ceil($totalRows / $rowsPerPage);
 
 ?>
